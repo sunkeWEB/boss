@@ -5,44 +5,6 @@ import {connect} from 'react-redux';
 import {Redirect} from 'react-router-dom';
 import {login} from './../../redux/userredux';
 
-function WrapperHello(Comp) {
-    class WrapperHello extends Comp {
-        componentWillMount () {
-            console.log("asasa");
-        }
-        render() {
-            return (
-                <div>
-                    <p>I Love SunKe</p>
-                    <Comp/>
-                </div>
-            )
-        }
-    }
-    return WrapperHello;
-}
-
-
-@WrapperHello
-
-class Hello extends React.Component {
-    render () {
-        return (
-            <p>这是Hello组件</p>
-        )
-    }
-}
-
-
-class Hello1 extends React.Component {
-    render () {
-        return (
-            <p>这是Hello1组件</p>
-        )
-    }
-}
-
-
 @connect(state => state.user, {login})
 class Login extends React.Component {
     constructor(props) {
@@ -61,7 +23,6 @@ class Login extends React.Component {
     }
 
     handleLogin() {
-        console.log("login...." + this.state);
         this.props.login(this.state);
     }
 
@@ -74,7 +35,6 @@ class Login extends React.Component {
     render() {
         return (
             <div>
-                <Hello/>
                 {/*登录之后跳转根据选择*/}
                 {this.props.redireact ? <Redirect to={this.props.redireact}/> : null}
                 <Logo/>

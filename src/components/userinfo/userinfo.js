@@ -21,12 +21,14 @@ class UserInfo extends React.Component {
         return (
             <WingBlank>
                 {data.map(v => (
-                    v.avatar ? <div><Card onClick={() => this.handleChat(v)} key={v._id}><Header title={v.user}
-                                                                                                 thumb={require(`./../img/${v.avatar}`)}
-                                                                                                 extra={<span><span
-                                                                                                     style={{color: 'red'}}>{v.type === 'boss' ? v.money : null}</span> {v.title}</span>}></Header><Body><span
+                    v.avatar ? <div key={new Date().getTime()+Math.random()+10}><Card onClick={() => this.handleChat(v)}
+                                          key={v._id + new Date().getTime() + Math.random()}><Header title={v.user}
+                                                                                                     thumb={require(`./../img/${v.avatar}`)}
+                                                                                                     extra={<span><span
+                                                                                                         style={{color: 'red'}}>{v.type === 'boss' ? v.money : null}</span> {v.title}</span>}></Header><Body>
+                    <span
                         style={{color: 'red'}}>{v.company === '' ? '' : '公司: ' + v.company}</span>{v.desc.split('\n').map(v => (
-                        <div><span style={{lineHeight: 1.5}}>{v}</span></div>))}</Body></Card>
+                        <div key={new Date().getTime()+Math.random()}><span style={{lineHeight: 1.5}}>{v}</span></div>))}</Body></Card>
                         <WhiteSpace/></div> : null
                 ))}
             </WingBlank>

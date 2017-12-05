@@ -1,7 +1,7 @@
 import React from 'react';
 // 用户登录的时候已经有啦数据 直接在redux中获取
 import {connect} from 'react-redux';
-import {Result, Icon, WhiteSpace, WingBlank, List, Button, Modal} from 'antd-mobile';
+import {Result, WhiteSpace, WingBlank, List, Button, Modal} from 'antd-mobile';
 import BrowserCookies from 'browser-cookies';
 import {logoutSubmit} from './../../redux/userredux';
 import {Redirect} from 'react-router-dom';

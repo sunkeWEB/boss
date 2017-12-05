@@ -1,8 +1,8 @@
 import axios from 'axios';
 import {getRedirectPath} from './../util/util';
 //  存放用户的redux
-const REGISTER_SUCCESS = 'REGISTER_SUCCESS';
-const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
+// const REGISTER_SUCCESS = 'REGISTER_SUCCESS';
+// const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 const LOGOUT = 'LOGOUT';
 const AUTH_SUCCESS = 'AUTH_SUCCESS';
 const LODA_DATE = 'LODA_DATE';
@@ -18,10 +18,8 @@ const initState = {
 
 //reducer
 export function user(state = initState, action) {
-    console.log("-----------------------------");
     switch (action.type) {
         case AUTH_SUCCESS:
-            console.log(getRedirectPath({type: action.payload.type,avatar: action.payload.avatar}));
             return { ...state,msg: '',redireact: getRedirectPath({type: action.payload.type,avatar: action.payload.avatar}), ...action.payload};
         case LODA_DATE:
             return {...state, ...action.payload};

@@ -1,34 +1,30 @@
 import React from 'react';
-import io from 'socket.io-client';
-import {List, InputItem} from 'antd-mobile';
+import {List, InputItem,NavBar,Icon,Grid} from 'antd-mobile';
 import {connect} from 'react-redux';
-import {getMsgList,sendMsg} from './../../redux/chatredux';
+import {getMsgList,sendMsg,recvMsg} from './../../redux/chatredux';
+import {getChatId} from "../../util/util";
 
-let socket = io('ws://127.0.0.1:3030');
 
-@connect(state=>state,{getMsgList,sendMsg})
+@connect(state=>state,{getMsgList,sendMsg,recvMsg})
 class Chat extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             text: "",
-            msg: []
+            msg: [],
+            showEmoij:false
         };
     }
 
     componentWillMount() {
-        this.props.getMsgList();
-        // // socket.on('resvmsg', (data) => {
-        // //     console.log(data);
-        // //     this.setState({
-        // //         msg: [...this.state.msg, data.text]
-        // //     });
-        // // });
+        if (!this.props.chat.chatmsg.length) {
+            this.props.getMsgList();
+            this.props.recvMsg();
+        }
     }
 
     handleSubmit() {
         const form = this.props.user._id;
-        console.log(form);
         const to = this.props.match.params.user;
         const content = this.state.text;
         this.props.sendMsg({form,to,content});
@@ -37,17 +33,55 @@ class Chat extends React.Component {
         });
     }
 
+    showEmo () {
+        setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));   // 手动派发事件  解决bug
+        }, 0);
+        this.setState({showEmoij: !this.state.showEmoij});
+    }
+
     render() {
+        const emoji = '😄 😊 😂 😎 😯 😛 😫 😨 😄 😊 😂 😎 😯 😛 😫 😨 😄 😊 😂 😎 😯 😛 😫 😨 😄 😊 😂 😎 😯 😛 😫 😨 😄 😊 😂 😎 😯 😛 😫 😨 😄 😊 😂 😎 😯 😛 😫 😨 😄 😊 😂 😎 😯 😛 😫 😨 😄 😊 😂 😎 😯 😛 😫 😨 😄 😊 😂 😎 😯 😛 😫 😨 😄 😊 😂 😎 😯 😛 😫 😨'.split(' ').filter(v => v).map(v => ({text:v}));
+
+        const userid = this.props.match.params.user; // 聊天的目标
+        const Item = List.Item;
+        const users = this.props.chat.users;
+        const useravatar = require(`./../../components/img/${users[userid].avatar}`);
+        if (!users[userid]) {
+            return null;
+        }
+        //聊天数据过滤
+        const chatid = getChatId(userid,this.props.user._id);
+        const chatmsgs = this.props.chat.chatmsg.filter(v => {
+            return v.chatid === chatid;
+          }
+        );
         return (
-            <div>
-                {this.state.msg.map(v => {
-                    return <p key={v}>{v}</p>
+            <div id="chat-page">
+                <NavBar icon={<Icon type="left" />} onLeftClick={()=>{this.props.history.goBack()}}>
+                    {users[userid].name}
+                </NavBar>
+                {chatmsgs.map(v => {
+                    return v.form === userid ? (
+                        <List key={v.chatid+new Date().getTime()+Math.random()}>
+                            <Item thumb={useravatar}>
+                                {v.content}
+                            </Item>
+                        </List>
+                    ) : (
+                        <List key={v.chatid+new Date().getTime()+Math.random()}>
+                            <Item className='chat-me' extra={<img src={require(`./../../components/img/${this.props.user.avatar}`)} alt=""/>}>
+                                {v.content}
+                            </Item>
+                        </List>
+                    )
                 })}
                 <div className="stick-footer">
                     <List>
-                        <InputItem extra={<span onClick={() => this.handleSubmit()}>发送</span>} plachholder="请输入"
+                        <InputItem extra={<div><span style={{marginRight:15}} onClick={()=>this.showEmo()} >😄</span><span onClick={() => this.handleSubmit()}>发送</span></div>} plachholder="请输入"
                                    value={this.state.text} onChange={v => this.setState({text: v})}/>
                     </List>
+                    {this.state.showEmoij ? <Grid data={emoji} columnNum={9} isCarousel={true} carouselMaxRow={4} onClick={(e)=>this.setState({text:this.state.text+e.text})}  /> : null}
                 </div>
             </div>
         )

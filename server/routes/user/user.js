@@ -5,22 +5,13 @@ let router = express.Router();
 let mongoose = require('./../../database/database');
 let User = require('./../../tablemodule/User');
 let Chat = require('./../../tablemodule/Chat');
-let socket = require('./../../socket/socket');
 
-// var {server} = require('./../../socket/socket');
-// let io = require('./../../socket/socket');
-// console.log(server);
-//socket.io 操作
-// io 是一个全局链接  socket 当前用户
-// io.on('connection', (socket) => {
-//     console.log('有用户链接');
-//
-//     socket.on('sendmsg',(data)=>{
-//         console.log(data);
-//         io.emit('resvmsg',data)
-//     })
-//
-// });
+
+router.get('/tt', (req, res) => {
+    res.json({
+        code:1
+    });
+});
 
 router.get('/list',(req,res)=>{
     const { type } = req.query;
@@ -167,17 +158,24 @@ router.post('/update',(req,res)=>{
 });
 
 router.get('/getmsglist', (req, res) => {
-    let user = req.cookies.user;
-    Chat.find({}, (err, doc) => {
-        if (err) {
+    let user = req.cookies.userid;
+    User.find({}, (err, userdoc) => {
+        let users = {};
+        userdoc.forEach(v => {
+            users[v._id] = {name:v.user,avatar:v.avatar};
+        });
+        Chat.find({'$or':[{form:user},{to:user}]}, (err, doc) => {
+            if (err) {
+                return res.json({
+                    code:1,
+                    msg:'系统错误 获取失败'
+                });
+            }
             return res.json({
-                code:1,
-                msg:'系统错误 获取失败'
+                code:0,
+                msgs:doc,
+                users:users
             });
-        }
-        return res.json({
-            code:0,
-            msgs:doc
         });
     });
 });

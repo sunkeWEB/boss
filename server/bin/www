@@ -3,20 +3,24 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('server:server');
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
-
+let app = require('../app');
+let debug = require('debug')('server:server');
+let server = require('http').Server(app);
+let io = require('socket.io')(server);
+let mongoose = require('./../database/database');
+let Chat = require('./../tablemodule/Chat');
 
 //socket.io 操作
 // io 是一个全局链接  socket 当前用户
 io.on('connection', (socket) => {
-    console.log('有用户链接');
-
     socket.on('sendmsg',(data)=>{
-        console.log(data);
-        io.emit('resvmsg',data)
+        const {form, to, content} = data;
+        console.log("form"+form);
+        const chatid = [form, to].sort().join('_');
+        Chat.create({chatid,form,to,content:content},(err,doc)=>{
+
+            io.emit('recvmsg',Object.assign({},doc._doc));
+        });
     })
 
 });
@@ -26,14 +30,14 @@ io.on('connection', (socket) => {
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3030');
+let port = normalizePort(process.env.PORT || '3030');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-// var server = http.createServer(app);
+// let server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -48,7 +52,7 @@ server.on('listening', onListening);
  */
 
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+  let port = parseInt(val, 10);
 
   if (isNaN(port)) {
     // named pipe
@@ -72,7 +76,7 @@ function onError(error) {
     throw error;
   }
 
-  var bind = typeof port === 'string'
+  let bind = typeof port === 'string'
     ? 'Pipe ' + port
     : 'Port ' + port;
 
@@ -96,8 +100,8 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
+  let addr = server.address();
+  let bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
