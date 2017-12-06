@@ -8,7 +8,7 @@ let MSG_LIST = "MSG_LIST";
 //读取信息
 let MSG_RECV = "MSG_RECV";
 //标识已读
-// let MSG_READ = "MSG_READ";
+let MSG_READ = "MSG_READ";
 
 const initState = {
     chatmsg: [],
@@ -24,7 +24,9 @@ export function chat(state = initState, action) {
         case MSG_RECV:
             let n = action.userid === action.payload.to ?  1 : 0;
             return {...state,chatmsg:[...state.chatmsg,action.payload],unread:state.unread + n};
-        // case MSG_READ:
+        case MSG_READ:
+            let {from, num} = action.payload;
+            return {...state,unread:state.unread-num,chatmsg:state.chatmsg.map(v=>({...v,read:from===v.form?true:v.read}))};
         default:
             return state;
     }
@@ -63,4 +65,21 @@ export function recvMsg() {
 
 function msgRecv(data,userid) {
     return {type: MSG_RECV, payload:data,userid}
+}
+
+// 跟新消息已读列表  from 是谁发送的消息的id  通过getState 获取当前登录的id
+export function readMsg(from) {
+    return (dispatch,getState)=>{
+        axios.post('/users/readmsg',{from}).then(res=>{
+            const userid = getState().user._id;
+            if (res.status===200 && res.data.code===0) {
+                dispatch(msgRead({userid,from,num:res.data.num}));
+            }
+        });
+    }
+}
+
+// 是从from 发送给 to
+function msgRead({from,to,num}) {
+    return {type: MSG_READ, payload: {from, to, num}};
 }

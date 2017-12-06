@@ -34,9 +34,21 @@
 #chat-page .am-grid-text{
 	margin-top: 0;
 }
+.navbar{
+	z-index: 10;
+	position: fixed;
+	top: 0;
+	width:100%;
+}
 .stick-footer{
 	z-index:10;
-	position: absolute;
+	position: fixed;
 	bottom: 0;
 	width:100%;
+}
+#chat-page:nth-child(1){
+	margin-top: 45px;
+}
+#chat-page:nth-last-child(1){
+	margin-bottom: 44px;
 }

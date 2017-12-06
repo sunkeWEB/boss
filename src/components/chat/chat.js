@@ -1,11 +1,10 @@
 import React from 'react';
-import {List, InputItem,NavBar,Icon,Grid} from 'antd-mobile';
+import {List, InputItem,NavBar,Icon,Grid,Button} from 'antd-mobile';
 import {connect} from 'react-redux';
-import {getMsgList,sendMsg,recvMsg} from './../../redux/chatredux';
+import {getMsgList,sendMsg,recvMsg,readMsg} from './../../redux/chatredux';
 import {getChatId} from "../../util/util";
 
-
-@connect(state=>state,{getMsgList,sendMsg,recvMsg})
+@connect(state=>state,{getMsgList,sendMsg,recvMsg,readMsg})
 class Chat extends React.Component {
     constructor(props) {
         super(props);
@@ -16,21 +15,30 @@ class Chat extends React.Component {
         };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         if (!this.props.chat.chatmsg.length) {
             this.props.getMsgList();
             this.props.recvMsg();
         }
     }
 
+    componentWillUnmount () {
+        this.props.readMsg(this.props.match.params.user);
+    }
+
     handleSubmit() {
         const form = this.props.user._id;
         const to = this.props.match.params.user;
         const content = this.state.text;
-        this.props.sendMsg({form,to,content});
-        this.setState({
-            text: ''
-        });
+
+        if (content!=='') {
+            this.props.sendMsg({form,to,content});
+            this.setState({
+                text: ''
+            });
+        }else{
+
+        }
     }
 
     showEmo () {
@@ -58,19 +66,19 @@ class Chat extends React.Component {
         );
         return (
             <div id="chat-page">
-                <NavBar icon={<Icon type="left" />} onLeftClick={()=>{this.props.history.goBack()}}>
+                <NavBar className="navbar" icon={<Icon type="left" />} onLeftClick={()=>{this.props.history.goBack()}}>
                     {users[userid].name}
                 </NavBar>
                 {chatmsgs.map(v => {
                     return v.form === userid ? (
                         <List key={v.chatid+new Date().getTime()+Math.random()}>
-                            <Item thumb={useravatar}>
+                            <Item multipleLine={true} wrap={true} thumb={useravatar}>
                                 {v.content}
                             </Item>
                         </List>
                     ) : (
                         <List key={v.chatid+new Date().getTime()+Math.random()}>
-                            <Item className='chat-me' extra={<img src={require(`./../../components/img/${this.props.user.avatar}`)} alt=""/>}>
+                            <Item wrap={true}  multipleLine={true} className='chat-me' extra={<img src={require(`./../../components/img/${this.props.user.avatar}`)} alt=""/>}>
                                 {v.content}
                             </Item>
                         </List>
@@ -78,7 +86,7 @@ class Chat extends React.Component {
                 })}
                 <div className="stick-footer">
                     <List>
-                        <InputItem extra={<div><span style={{marginRight:15}} onClick={()=>this.showEmo()} >😄</span><span onClick={() => this.handleSubmit()}>发送</span></div>} plachholder="请输入"
+                        <InputItem onKeyUp={(e) => {if(e.which===13){this.handleSubmit()}}} extra={<div><span style={{marginRight:15}} onClick={()=>this.showEmo()} >😄</span><span onClick={() => this.handleSubmit()}>发送</span></div>} plachholder="请输入"
                                    value={this.state.text} onChange={v => this.setState({text: v})}/>
                     </List>
                     {this.state.showEmoij ? <Grid data={emoji} columnNum={9} isCarousel={true} carouselMaxRow={4} onClick={(e)=>this.setState({text:this.state.text+e.text})}  /> : null}
